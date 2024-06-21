@@ -1,13 +1,13 @@
 pipeline {
   agent any
-  triggers {
-    githubPush()
-  }
   stages {
     stage('Build') { 
+      agent {
+        docker { image 'node:18-alpine' }  
+      }        
       steps {
-        sh 'echo yarn install' 
-        sh 'echo yarn build' 
+        sh 'yarn install' 
+        sh 'yarn build' 
       }
     }
 
