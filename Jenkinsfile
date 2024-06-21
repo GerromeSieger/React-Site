@@ -1,7 +1,10 @@
 pipeline {
   agent {
-        label 'docker1'
-      } 
+    docker {
+      label 'docker1'
+      image 'jenkins-docker-agent'  // This should match the name of the image you built
+    }
+  }       
   stages {
     stage('Build') { 
       agent {
