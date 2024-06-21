@@ -13,8 +13,8 @@ pipeline {
 
     stage('Test') {
       steps {
-        sh 'echo pip install -r requirements.txt'
-        sh 'echo pytest tests/'
+        sh 'echo yarn install'
+        sh 'echo yarn test'
       }
     }
 
