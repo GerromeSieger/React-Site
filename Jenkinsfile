@@ -1,32 +1,26 @@
 pipeline {
-  agent {
-    docker {
-      label 'docker1'
-      image 'jenkins-docker-agent'  // This should match the name of the image you built
-    }
-  }       
-  stages {
-    stage('Build') { 
-      agent {
-        docker { image 'node:18-alpine' }  
-      }
-      steps {
-        sh 'yarn install' 
-        sh 'yarn build' 
-      }
-    }
+    agent any
 
-    stage('Test') {
-      steps {
-        sh 'echo yarn install'
-        sh 'echo yarn test'
-      }
+    stages {
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_TOKEN = credentials('SONAR_TOKEN')
+                SONAR_HOST_URL = credentials('SONAR_HOST_URL')
+                PROJECT_KEY = credentials('PROJECT_KEY')
+            }
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
+                }
+            }
+        }
     }
-
-    stage('Deploy') {
-      steps {
-        sh 'echo ansible-playbook playbooks/deploy.yml'  
-      }
-    }
-  }
 }
