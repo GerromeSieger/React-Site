@@ -2,6 +2,9 @@ pipeline {
     agent any
 
     stages {
+        agent {
+            docker { image 'sonarsource/sonar-scanner-cli:latest' }  
+          }
         stage('SonarQube Analysis') {
             environment {
                 SONAR_TOKEN = credentials('SONAR_TOKEN')
@@ -10,11 +13,11 @@ pipeline {
             }
             steps {
                 script {
-                    def scannerHome = tool 'SonarScanner'
                     withSonarQubeEnv('SonarQube') {
                         sh """
-                            ${scannerHome}/bin/sonar-scanner \
+                            sonar-scanner \
                             -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
