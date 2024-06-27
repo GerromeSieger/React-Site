@@ -7,8 +7,11 @@ pipeline {
   stages {
     stage('Build') { 
       steps {
-        sh 'echo yarn install' 
-        sh 'echo yarn build' 
+        nodejs(nodeJSInstallationName: "NodeJS ${NODE_VERSION}") {
+          sh 'npm install'
+          sh 'npm run build'
+          }
+        stash includes: 'build/**', name: 'build-artifact'
       }
     }
 
