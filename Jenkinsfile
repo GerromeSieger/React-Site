@@ -1,5 +1,6 @@
 pipeline {
     agent any
+    
     environment {
         NODE_VERSION = '18'
         IP_CRED = credentials('host-ip') 
