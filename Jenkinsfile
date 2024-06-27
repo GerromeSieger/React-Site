@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        NODE_VERSION = '18'
+        NODE_VERSION = '18.0.0'
         IP_CRED = credentials('host-ip') 
     }
     stages {
@@ -11,8 +11,9 @@ pipeline {
                 docker { image 'node:18-alpine' }  
               }                
             steps {
-                sh 'npm install'
-                sh 'npm run build'
+                nodejs(nodeJSInstallationName: "NodeJs ${NODE_VERSION}") {
+                    sh 'npm install'
+                    sh 'npm run build'
                 }
                 stash includes: 'build/**', name: 'build-artifact'
             }
