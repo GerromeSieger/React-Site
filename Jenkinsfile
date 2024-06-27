@@ -14,9 +14,10 @@ pipeline {
                 sh "docker build -t gerrome/react-site ."
                 withCredentials([
                     usernamePassword(credentials: 'dockerhub-cred', usernameVariable: DOCKERHUB_USERNAME, passwordVariable: DOCKERHUB_PASSWORD)
-                ])
+                ]){
                 sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} && docker push gerrome/react-site"                 
-            }   
+            }
+          }   
         }
 
         stage('Test') {
