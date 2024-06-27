@@ -6,7 +6,6 @@ pipeline {
         IP_CRED = credentials('host-ip') 
     }
     stages {
-      
         stage('Build') {
             steps {
                 nodejs(nodeJSInstallationName: "NodeJS ${NODE_VERSION}") {
