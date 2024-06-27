@@ -1,32 +1,52 @@
 pipeline {
-  agent {
-    docker {
-      label 'docker1'
-      image 'jenkins-docker-agent'  // This should match the name of the image you built
-    }
-  }       
-  stages {
-    stage('Build') { 
-      agent {
-        docker { image 'node:18-alpine' }  
-      }
-      steps {
-        sh 'yarn install' 
-        sh 'yarn build' 
-      }
+    agent any
+
+    environment {
+        NODE_VERSION = '18'
+        IP_CRED = credentials('host-ip') 
     }
 
-    stage('Test') {
-      steps {
-        sh 'echo yarn install'
-        sh 'echo yarn test'
-      }
+    stages {
+        stage('Build') {
+            steps {
+                nodejs(nodeJSInstallationName: "NodeJS ${NODE_VERSION}") {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+                stash includes: 'build/**', name: 'build-artifact'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                unstash 'build-artifact'
+                sh 'chmod +x ./test.sh'
+                sh './test.sh'
+            }
+        }
+
+        stage ('Deploy') {
+            agent { 
+                docker { image 'ubuntu:22.04' }  
+              }      
+            steps{
+                unstash 'build-artifact'
+                withCredentials([sshUserPrivateKey(credentialsId: 'remote-server-cred', keyFileVariable: 'SSH_PRIVATE_KEY', usernameVariable: 'REMOTE_USER')]) {
+                sh """
+                ssh -o StrictHostKeyChecking=no -i ${SSH_PRIVATE_KEY} ${REMOTE_USER}@${IP_CRED} '
+                sudo apt update
+                pwd
+                ls -al
+              '
+                """
+                }
+            }
+        }
     }
 
-    stage('Deploy') {
-      steps {
-        sh 'echo ansible-playbook playbooks/deploy.yml'  
-      }
+    post {
+        always {
+            cleanWs()
+        }
     }
-  }
 }
