@@ -6,18 +6,39 @@ pipeline {
         HOST_IP = credentials('host-ip')
     }
     stages {
-
         stage('Build') {
             agent { 
                 docker { image 'docker:latest' }  
               }                
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                sh "docker build -t gerrome/react-site ."
                 withCredentials([
                     usernamePassword(credentials: 'dockerhub-cred', usernameVariable: DOCKERHUB_USERNAME, passwordVariable: DOCKERHUB_PASSWORD)
                 ])
-                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} && docker push ${DOCKER_IMAGE}"                 
+                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} && docker push gerrome/react-site"                 
             }   
+        }
+
+        stage('Test') {
+            environment {
+                SONAR_TOKEN = credentials('SONAR_TOKEN')
+                SONAR_HOST_URL = credentials('SONAR_HOST_URL')
+                PROJECT_KEY = credentials('PROJECT_KEY')
+            } 
+            agent {
+                docker { image 'sonarsource/sonar-scanner-cli:latest' }  
+              }
+            steps {
+                script {
+                        sh """
+                            sonar-scanner \
+                            -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                }
+            }
         }
 
         stage ('Deploy') {
