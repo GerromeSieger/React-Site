@@ -34,10 +34,10 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'remote-server-cred', keyFileVariable: 'SSH_PRIVATE_KEY', usernameVariable: 'REMOTE_USER')]) {
                 sh """
                 apt update && apt install openssh-client -y
+                scp -o StrictHostKeyChecking=no -o -i ${SSH_PRIVATE_KEY} -r ./build ${REMOTE_USER}@${IP_CRED}:/root
                 ssh -o StrictHostKeyChecking=no -i ${SSH_PRIVATE_KEY} ${REMOTE_USER}@${IP_CRED} '
-                sudo apt update
-                pwd
-                ls -al
+                sudo cp -r build/* /var/www/html
+                sudo systemctl restart nginx
               '
                 """
                 }
