@@ -2,27 +2,43 @@ pipeline {
     agent any
     
     environment {
-        NODE_VERSION = '18.0.0'
-        IP_CRED = credentials('host-ip') 
+        DOCKER_IMAGE = credentials('docker-image')
+        HOST_IP = credentials('host-ip')
     }
     stages {
-        stage('Build') {
-            agent { 
-                docker { image 'node:18-alpine' }  
-              }                
+        stage('Test') {
+            environment {
+                SONAR_TOKEN = credentials('SONAR_TOKEN')
+                SONAR_HOST_URL = credentials('SONAR_HOST_URL')
+                PROJECT_KEY = credentials('PROJECT_KEY')
+            } 
+            agent {
+                docker { image 'sonarsource/sonar-scanner-cli:latest' }  
+              }
             steps {
-                sh 'npm install'
-                sh 'npm run build'
-                stash includes: 'build/**', name: 'build-artifact'
+                script {
+                        sh """
+                            sonar-scanner \
+                            -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                }
             }
         }
 
-        stage('Test') {
+        stage('Build') {
+            agent { 
+                docker { image 'docker:latest' }  
+              }                
             steps {
-                unstash 'build-artifact'
-                sh 'chmod +x ./test.sh'
-                sh './test.sh'
-            }
+                sh "docker build -t ${DOCKER_IMAGE} ."
+                withCredentials([
+                    usernamePassword(credentials: 'dockerhub-cred', usernameVariable: DOCKERHUB_USERNAME, passwordVariable: DOCKERHUB_PASSWORD)
+                ])
+                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} && docker push ${DOCKER_IMAGE}"                 
+            }   
         }
 
         stage ('Deploy') {
@@ -34,10 +50,9 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'remote-server-cred', keyFileVariable: 'SSH_PRIVATE_KEY', usernameVariable: 'REMOTE_USER')]) {
                 sh """
                 apt update && apt install openssh-client -y
-                scp -o StrictHostKeyChecking=no -i ${SSH_PRIVATE_KEY} -r ./build ${REMOTE_USER}@${IP_CRED}:/root
-                ssh -o StrictHostKeyChecking=no -i ${SSH_PRIVATE_KEY} ${REMOTE_USER}@${IP_CRED} '
-                sudo cp -r build/* /var/www/html
-                sudo systemctl restart nginx
+                ssh -o StrictHostKeyChecking=no -i ${SSH_PRIVATE_KEY} ${REMOTE_USER}@${HOST_IP} '
+                docker pull gerrome/react-site
+                docker run -p 5000:80 -d gerrome/react-site 
               '
                 """
                 }
