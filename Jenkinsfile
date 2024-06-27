@@ -6,12 +6,13 @@ pipeline {
         IP_CRED = credentials('host-ip') 
     }
     stages {
-        stage('Build') {        
+        stage('Build') {
+            agent { 
+                docker { image 'node:18-alpine' }  
+              }                
             steps {
-                nodejs(nodeJSInstallationName: "NodeJs ${NODE_VERSION}") {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
+                sh 'npm install'
+                sh 'npm run build'
                 stash includes: 'build/**', name: 'build-artifact'
             }
         }
