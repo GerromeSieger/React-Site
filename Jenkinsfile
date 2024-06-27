@@ -4,9 +4,6 @@ pipeline {
         NODE_VERSION = '18'
         IP_CRED = credentials('host-ip') 
     }
-    triggers {
-      githubPush()
-    }
     stages {
         stage('Build') {
             steps {
