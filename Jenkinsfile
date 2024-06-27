@@ -1,11 +1,12 @@
 pipeline {
     agent any
-    
+
     environment {
         NODE_VERSION = '18'
         IP_CRED = credentials('host-ip') 
     }
     stages {
+      
         stage('Build') {
             steps {
                 nodejs(nodeJSInstallationName: "NodeJS ${NODE_VERSION}") {
