@@ -6,18 +6,16 @@ pipeline {
         HOST_IP = credentials('host-ip')
     }
     stages {
-        stage('Build') {
-            agent { 
-                docker { image 'docker:latest' }  
-              }                
+        stage('Build and Push Docker Image') {
             steps {
-                sh "docker build -t gerrome/react-site ."
-                withCredentials([
-                    usernamePassword(credentials: 'dockerhub-cred', usernameVariable: DOCKERHUB_USERNAME, passwordVariable: DOCKERHUB_PASSWORD)
-                ]){
-                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} && docker push gerrome/react-site"                 
+                script {
+                    docker.withRegistry('docker.io', 'dockerhub-cred') {
+                        def customImage = docker.build("${DOCKER_IMAGE}")
+                        customImage.push()
+                        customImage.push('latest')
+                    }
+                }
             }
-          }   
         }
 
         stage('Test') {
