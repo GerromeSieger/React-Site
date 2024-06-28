@@ -41,7 +41,7 @@ jobs:
     - name: Checkout K8s Manifests Repo
       uses: actions/checkout@v2
       with:
-        repository: ${{ .K8S_MANIFEST_REPO }}
+        repository: ${{ secrets.K8S_MANIFEST_REPO }}
         token: ${{ secrets.MANIFEST_REPO_PAT }}
         path: k8s-manifests
 
