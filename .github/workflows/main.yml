@@ -14,5 +14,4 @@ jobs:
     - name: Build and push Docker image
       run: |
         echo "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-        echo "docker build -t yourusername/yourapp:${{ github.sha }} ."
         echo "docker push yourusername/yourapp:${{ github.sha }} "
