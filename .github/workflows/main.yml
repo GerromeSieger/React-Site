@@ -24,14 +24,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: test
+    outputs:
+      docker_tag: ${{ steps.vars.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Generate Docker Tag
         id: docker_tag
-        run: |
-          echo "tag=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+        run: echo "tag=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -44,36 +45,38 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_IMAGE }}:${{ steps.docker_tag.outputs.tag }}   
+          tags: ${{ secrets.DOCKER_IMAGE }}:${{ steps.docker_tag.outputs.tag }}
+
+      - name: Set Output
+        id: vars
+        run: echo "tag=${{ steps.docker_tag.outputs.tag }}" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - name: Clone K8s Manifests Repo
-      run: |
-        git clone https://x-access-token:${{ secrets.MANIFEST_REPO_PAT }}@${{ secrets.K8S_MANIFEST_REPO }} k8s-manifests
-        cd k8s-manifests
-        git config user.name github-actions
-        git config user.email github-actions@github.com
+      - name: Clone K8s Manifests Repo
+        run: |
+          git clone https://x-access-token:${{ secrets.MANIFEST_REPO_PAT }}@${{ secrets.K8S_MANIFEST_REPO }} k8s-manifests
+          cd k8s-manifests
+          git config user.name github-actions
+          git config user.email github-actions@github.com
 
-    - name: Update Kubernetes Manifests
-      env:
-        DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
-      run: |
-        cd k8s-manifests
-        cat $DOCKER_TAG
-        cat ${{ needs.build.outputs.docker_tag }} 
-        git pull origin main
-        awk -v image="${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
-          /image:/ {$0 = "        image: " image}
-          {print}
-        ' k8s/app.yml > temp.yml && mv temp.yml k8s/app.yml
-        if [[ -n $(git status -s) ]]; then
-          echo "Changes detected. Committing and pushing..."
-          git add .
-          git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
-          git push
-        else
-          echo "No changes detected in Kubernetes manifests."
-        fi
+      - name: Update Kubernetes Manifests
+        env:
+          DOCKER_TAG: ${{ needs.build.outputs.docker_tag }}
+        run: |
+          cd k8s-manifests
+          git pull origin main
+          awk -v image="${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
+            /image:/ {$0 = "        image: " image}
+            {print}
+          ' k8s/app.yml > temp.yml && mv temp.yml k8s/app.yml
+          if [[ -n $(git status -s) ]]; then
+            echo "Changes detected. Committing and pushing..."
+            git add .
+            git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
+            git push
+          else
+            echo "No changes detected in Kubernetes manifests."
+          fi
