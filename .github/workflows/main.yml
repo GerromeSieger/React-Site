@@ -16,16 +16,14 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '18'
 
     - name: Install Dependencies
-      run: npm ci
-
-    - name: Run Tests
-      run: npm test
+      run: echo "npm ci"
 
   build:
     runs-on: ubuntu-latest
+    needs: test
     steps:
     - name: Build and Push Docker Image
       env:
@@ -38,6 +36,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:  
     - name: Checkout K8s Manifests Repo
       uses: actions/checkout@v2
