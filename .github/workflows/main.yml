@@ -55,9 +55,7 @@ jobs:
 
     - name: Update Kubernetes Manifests
       env:
-        DOCKER_TAG: ${{ needs.build.outputs.docker_tag }}    
-
-    - name: Update Kubernetes Manifests
+        DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
       run: |
         cd k8s-manifests
         sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}|' k8s/app.yml
