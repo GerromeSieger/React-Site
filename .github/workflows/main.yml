@@ -70,7 +70,7 @@ jobs:
       env:
         DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
       run: |
-        cd k8s-manifests/k8s
+        cd k8s-manifests
         sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}|' k8s/app.yml
         git add .
         git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
