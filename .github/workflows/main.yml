@@ -53,17 +53,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:  
+    - name: Debug Repository Info
+      run: |
+        echo "Attempting to checkout repository: ${{ secrets.K8S_MANIFEST_REPO }}"
+        echo "Using token: ${{ secrets.MANIFEST_REPO_PAT != '' }}"
+
     - name: Checkout K8s Manifests Repo
       uses: actions/checkout@v2
       with:
         repository: ${{ secrets.K8S_MANIFEST_REPO }}
         token: ${{ secrets.MANIFEST_REPO_PAT }}
+        fetch-depth: 0
+
+    - name: List Repository Contents
+      run: |
+        ls -la
+        git branch -a
 
     - name: Update Kubernetes Manifests
       env:
         DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
       run: |
-        cd k8s-manifests
         sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}|' k8s/app.yml
         git config user.name github-actions
         git config user.email github-actions@github.com
