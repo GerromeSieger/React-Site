@@ -55,7 +55,7 @@ jobs:
     steps:
     - name: Clone K8s Manifests Repo
       run: |
-        git clone https://x-access-token:${{ secrets.MANIFEST_REPO_PAT }}@github.com/${{ secrets.K8S_MANIFEST_REPO }}.git k8s-manifests
+        git clone https://x-access-token:${{ secrets.MANIFEST_REPO_PAT }}@${{ secrets.K8S_MANIFEST_REPO }} k8s-manifests
         cd k8s-manifests
         git config user.name github-actions
         git config user.email github-actions@github.com
