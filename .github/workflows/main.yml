@@ -23,30 +23,30 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: test
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Generate Docker Tag
-      id: docker_tag
-      run: |
-        TAG=$(date +%Y%m%d-%H%M%S)-${{ github.run_number }}
-        echo "::set-output name=tag::$TAG"
-        echo "Generated tag: $TAG"
+      - name: Generate Docker Tag
+        id: docker_tag
+        run: echo "::set-output name=tag::$(echo ${GITHUB_SHA} | cut -c1-7)"       
 
-    - name: Build and Push Docker Image
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        DOCKER_TAG="${{ steps.docker_tag.outputs.tag }}"
-        echo "Building image ${{ env.DOCKER_REPO }}:$DOCKER_TAG"
-        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-        docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
-        docker push $DOCKER_IMAGE:$DOCKER_TAG
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          
+      - name: Build and push backend
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_IMAGE }}:${{ steps.docker_tag.outputs.tag }}
 
-    - name: Set Output
-      id: vars
-      run: echo "::set-output name=tag::${{ steps.docker_tag.outputs.tag }}"        
+      - name: Set Output
+        id: vars
+        run: echo "::set-output name=tag::${{ steps.docker_tag.outputs.tag }}"        
 
   deploy:
     runs-on: ubuntu-latest
