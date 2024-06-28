@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: reactapp-container
-        image: gerrome/react-site
+        image: gerrome/vue-site
         imagePullPolicy: Always
         ports:
         - containerPort: 80
