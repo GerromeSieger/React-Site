@@ -60,19 +60,11 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
 
-    - name: Install PyYAML
-      run: pip install PyYAML
-
-    - name: List Repository Contents
-      run: |
-        cd k8s-manifests
-        ls -la
-        git branch -a
-
     - name: Update Kubernetes Manifests
       env:
         DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
       run: |
+        echo DOCKER_TAG
         cd k8s-manifests
         git pull origin main
         awk -v image="${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
