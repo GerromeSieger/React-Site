@@ -29,7 +29,7 @@ jobs:
     - name: Generate Docker Tag
       id: docker_tag
       run: |
-        TAG=$(echo ${GITHUB_SHA} | cut -c1-7)
+        TAG=$(date +%Y%m%d-%H%M%S)-${{ github.run_number }}
         echo "::set-output name=tag::$TAG"
         echo "Generated tag: $TAG"
 
