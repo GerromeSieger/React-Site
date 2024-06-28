@@ -70,20 +70,20 @@ jobs:
         git branch -a
 
     - name: Update Kubernetes Manifests
-        env:
-          DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
-        run: |
+      env:
+        DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
+      run: |
           cd k8s-manifests
           git pull origin main
           python3 - <<EOF
         import yaml
 
-        with open('k8s/app.yml', 'r') as file:
+      with open('k8s/app.yml', 'r') as file:
             manifest = yaml.safe_load(file)
 
         manifest['spec']['template']['spec']['containers'][0]['image'] = '${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}'
 
-        with open('k8s/app.yml', 'w') as file:
+      with open('k8s/app.yml', 'w') as file:
             yaml.dump(manifest, file, default_flow_style=False)
         EOF
               if [[ -n $(git status -s) ]]; then
