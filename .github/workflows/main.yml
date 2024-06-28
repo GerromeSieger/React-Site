@@ -65,6 +65,7 @@ jobs:
         DOCKER_TAG: ${{ needs.build.outputs.docker_tag }} 
       run: |
         echo DOCKER_TAG
+        echo ${{ needs.build.outputs.docker_tag }}
         cd k8s-manifests
         git pull origin main
         awk -v image="${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
