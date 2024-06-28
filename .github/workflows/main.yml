@@ -26,12 +26,12 @@ jobs:
     needs: test
     steps:
 
-  - name: Generate Docker Tag
-    id: docker_tag
-    run: |
-      TAG=$(echo ${GITHUB_SHA} | cut -c1-7)
-      echo "::set-output name=tag::$TAG"
-      echo "Generated tag: $TAG"
+    - name: Generate Docker Tag
+      id: docker_tag
+      run: |
+        TAG=$(echo ${GITHUB_SHA} | cut -c1-7)
+        echo "::set-output name=tag::$TAG"
+        echo "Generated tag: $TAG"
 
     - name: Build and Push Docker Image
       env:
