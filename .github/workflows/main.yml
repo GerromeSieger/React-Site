@@ -25,14 +25,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+
+    - name: Generate Docker Tag
+      id: docker_tag
+      run: echo "::set-output name=tag::$(echo ${GITHUB_SHA} | cut -c1-7)"
+
     - name: Build and Push Docker Image
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
         docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-        docker build -t $DOCKER_IMAGE:${{ github.sha }} .
-        docker push $DOCKER_IMAGE:${{ github.sha }}
+        docker build -t $DOCKER_IMAGE:${{ steps.docker_tag.outputs.tag }} .
+        docker push $DOCKER_IMAGE:${{ steps.docker_tag.outputs.tag }}
+
+    - name: Set Output
+      id: vars
+      run: echo "::set-output name=tag::${{ steps.docker_tag.outputs.tag }}"        
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,14 +52,17 @@ jobs:
       with:
         repository: ${{ secrets.K8S_MANIFEST_REPO }}
         token: ${{ secrets.MANIFEST_REPO_PAT }}
-        path: k8s-manifests
+
+    - name: Update Kubernetes Manifests
+      env:
+        DOCKER_TAG: ${{ needs.build.outputs.docker_tag }}    
 
     - name: Update Kubernetes Manifests
       run: |
         cd k8s-manifests
-        sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}|' k8s/app.yml
+        sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}|' k8s/app.yml
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add .
-        git commit -m "Update image tag to ${{ github.sha }}"
+        git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
         git push
