@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,12 +7,51 @@ on:
     branches: [ main ]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout React App
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Tests
+      run: npm test
+
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build and push Docker image
+    - name: Build and Push Docker Image
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
-        echo "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-        echo "docker build -t yourusername/yourapp:${{ github.sha }} ."
-        echo "docker push yourusername/yourapp:${{ github.sha }} "
+        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        docker build -t $DOCKER_IMAGE:${{ github.sha }} .
+        docker push $DOCKER_IMAGE:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:  
+    - name: Checkout K8s Manifests Repo
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ .K8S_MANIFEST_REPO }}
+        token: ${{ secrets.MANIFEST_REPO_PAT }}
+        path: k8s-manifests
+
+    - name: Update Kubernetes Manifests
+      run: |
+        cd k8s-manifests
+        sed -i 's|image: ${{ secrets.DOCKER_IMAGE }}:.*|image: ${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}|' k8s/app.yml
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Update image tag to ${{ github.sha }}"
+        git push
