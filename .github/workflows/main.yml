@@ -25,6 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      - name: Checkout React App
+        uses: actions/checkout@v2
+
       - name: Create and populate kubeconfig
         env:
           KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
@@ -40,4 +43,4 @@ jobs:
           sudo mv ./kubectl /usr/local/bin/kubectl
 
       - name: Verify kubectl configuration
-        run: kubectl get nodes
+        run: kubectl apply -f k8s/app.yml
