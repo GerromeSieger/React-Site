@@ -30,7 +30,7 @@ jobs:
           KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
         run: |
           mkdir -p $HOME/.kube
-          echo "$KUBECONFIG_CONTENT" | base64 -d > $HOME/.kube/config
+          echo "$KUBECONFIG_CONTENT" >> $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Install kubectl
