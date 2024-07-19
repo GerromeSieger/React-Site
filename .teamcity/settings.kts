@@ -83,18 +83,34 @@ object ReactSite_Build : BuildType({
 
     steps {
         // SonarQube Analysis
-        sonarQube {
-            name = "Test"
-            projectName = "%env.PROJECT_KEY%"
-            projectKey = "%env.PROJECT_KEY%"
-            serverUrl = "%env.SONAR_HOST_URL%"
-            token = "%env.SONAR_TOKEN%"
+        dockerCommand {
+            name = "test"
+            commandType = other {
+                subCommand = "run"
+                commandArgs = """
+                    --rm 
+                    -e SONAR_HOST_URL="%env.SONAR_HOST_URL%" 
+                    -e SONAR_LOGIN="%env.SONAR_TOKEN%" 
+                    -v "%teamcity.build.checkoutDir%:/usr/src" 
+                    sonarsource/sonar-scanner-cli:latest 
+                    -Dsonar.projectKey=%env.PROJECT_KEY%
+                """.trimIndent()
+            }
         }
 
         // Docker Login
-        script {
+        dockerCommand {
             name = "Login to DockerHub"
-            scriptContent = "docker login -u %env.DOCKERHUB_USERNAME% -p %env.DOCKERHUB_PASSWORD%"
+            commandType = other {
+                subCommand = "run"
+                commandArgs = """
+                    --rm 
+                    -e DOCKER_USERNAME="%env.DOCKERHUB_USERNAME%" 
+                    -e DOCKER_PASSWORD="%env.DOCKERHUB_PASSWORD%" 
+                    docker:dind 
+                    sh -c "echo ${'$'}DOCKER_PASSWORD | docker login -u ${'$'}DOCKER_USERNAME --password-stdin"
+                """.trimIndent()
+            }
         }
 
         // Docker Build and Push
