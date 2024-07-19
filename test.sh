@@ -1,7 +1,9 @@
 #!/bin/bash
 
+apt update
+
 # Install nginx without interactive prompts
-DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+DEBIAN_FRONTEND=noninteractive apt install -y nginx curl
 
 # Remove existing content and copy new content
 rm -rf /var/www/html/*
@@ -10,7 +12,7 @@ cp -r ./build/* /var/www/html/
 # Start nginx
 service nginx start
 
-sleep 5 
+sleep 5
 
 RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
 
