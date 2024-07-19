@@ -54,8 +54,8 @@ object Build : BuildType({
                 subCommand = "run"
                 commandArgs = """
                     --rm 
-                    -e SONAR_HOST_URL=%env.SONAR_HOST_URL%
-                    -e SONAR_LOGIN=%env.SONAR_TOKEN%
+                    -e "SONAR_HOST_URL=%env.SONAR_HOST_URL%"
+                    -e "SONAR_LOGIN=%env.SONAR_TOKEN%"
                     -v "%teamcity.build.checkoutDir%:/usr/src" 
                     sonarsource/sonar-scanner-cli:latest 
                     -Dsonar.projectKey=%env.PROJECT_KEY%
