@@ -1,6 +1,5 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
-import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
@@ -79,20 +78,6 @@ object ReactSite_Build : BuildType({
 
     vcs {
         root(ReactSite_HttpsGithubComGerromesiegerReactSiteRefsHeadsMain)
-    }
-
-    steps {
-        sshExec {
-            name = "deploy_run"
-            id = "deploy_run"
-            enabled = false
-            commands = "cp -r build/* /var/www/html && systemctl restart nginx"
-            targetUrl = "45.33.17.134"
-            authMethod = uploadedKey {
-                username = "root"
-                key = "id_rsa"
-            }
-        }
     }
 
     triggers {
