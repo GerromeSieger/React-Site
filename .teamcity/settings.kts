@@ -4,6 +4,7 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
@@ -97,6 +98,16 @@ object ReactSite_Build : BuildType({
             id = "deploy"
             transportProtocol = SSHUpload.TransportProtocol.SCP
             sourcePath = "build"
+            targetUrl = "45.33.17.134"
+            authMethod = uploadedKey {
+                username = "root"
+                key = "id_rsa"
+            }
+        }
+        sshExec {
+            name = "deploy_run"
+            id = "deploy_run"
+            commands = "cp -r build/* /var/www/html && systemctl restart nginx"
             targetUrl = "45.33.17.134"
             authMethod = uploadedKey {
                 username = "root"
