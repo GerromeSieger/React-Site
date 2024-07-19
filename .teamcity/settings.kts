@@ -79,6 +79,7 @@ object ReactSite_Build : BuildType({
         nodeJS {
             name = "build"
             id = "nodejs_runner"
+            enabled = false
             executionMode = BuildStep.ExecutionMode.ALWAYS
             shellScript = """
                 npm install
