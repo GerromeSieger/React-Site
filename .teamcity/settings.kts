@@ -48,6 +48,70 @@ object Build : BuildType({
         password("env.SONAR_HOST_URL", "credentialsJSON:9f2d9368-e5bc-4dcf-abf6-fb69a1e90532")
     }
 
+    steps {
+        // SonarQube Analysis
+        dockerCommand {
+            name = "test"
+            commandType = other {
+                subCommand = "run"
+                commandArgs = """
+                    --rm 
+                    -e SONAR_HOST_URL="%env.SONAR_HOST_URL%" 
+                    -e SONAR_LOGIN="%env.SONAR_TOKEN%" 
+                    -v "%teamcity.build.checkoutDir%:/usr/src" 
+                    sonarsource/sonar-scanner-cli:latest 
+                    -Dsonar.projectKey=%env.PROJECT_KEY%
+                """.trimIndent()
+            }
+        }
+
+        // Docker Login
+        dockerCommand {
+            name = "Login to DockerHub"
+            commandType = other {
+                subCommand = "run"
+                commandArgs = """
+                    --rm 
+                    -e DOCKER_USERNAME="%env.DOCKERHUB_USERNAME%" 
+                    -e DOCKER_PASSWORD="%env.DOCKERHUB_PASSWORD%" 
+                    docker:dind 
+                    sh -c "echo ${'$'}DOCKER_PASSWORD | docker login -u ${'$'}DOCKER_USERNAME --password-stdin"
+                """.trimIndent()
+            }
+        }
+
+        dockerCommand {
+            name = "Build Docker Image"
+            commandType = build {
+                source = file {
+                    path = "Dockerfile"
+                }
+                contextDir = "."
+                namesAndTags = "%env.DOCKER_IMAGE%"
+            }
+        }
+
+        dockerCommand {
+            name = "Push Docker Image"
+            commandType = push {
+                namesAndTags = "%env.DOCKER_IMAGE%"
+            }
+        }
+
+        // Deploy to EC2 Instance
+        sshExec {
+            name = "Deploy to EC2 Instance"
+            commands = """
+                docker run -p 5000:80 -d --name myapp %env.DOCKER_IMAGE%
+            """.trimIndent()
+            targetUrl = "%env.HOST%"
+            authMethod = uploadedKey {
+                username = "%env.USER%"
+                key = "id_rsa"
+            }
+        }
+    }
+
     vcs {
         root(DslContext.settingsRoot)
     }
