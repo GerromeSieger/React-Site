@@ -1,9 +1,7 @@
 import jetbrains.buildServer.configs.kotlin.*
-import jetbrains.buildServer.configs.kotlin.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
-import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
@@ -69,6 +67,9 @@ object ReactSite : Project({
 object ReactSite_Build : BuildType({
     name = "React"
 
+    artifactRules = "build/**"
+    publishArtifacts = PublishMode.SUCCESSFUL
+
     params {
         password("env.HOST", "credentialsJSON:01d99e4c-8d5b-4a5f-9839-20bb51349186")
         password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
@@ -85,41 +86,35 @@ object ReactSite_Build : BuildType({
     }
 
     steps {
-        // SonarQube Analysis
-        sonarQube {
-            name = "Test"
-            projectName = "%env.PROJECT_KEY%"
-            projectKey = "%env.PROJECT_KEY%"
-            serverUrl = "%env.SONAR_HOST_URL%"
-            token = "%env.SONAR_TOKEN%"
-        }
-
-        // Docker Login
         script {
-            name = "Login to DockerHub"
-            scriptContent = "docker login -u %env.DOCKERHUB_USERNAME% -p %env.DOCKERHUB_PASSWORD%"
+            name = "test"
+            id = "simpleRunner"
+            enabled = false
+            scriptContent = "./test.sh"
+            dockerImage = "ubuntu:22.04"
+            dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
+            dockerPull = true
         }
-
-        // Docker Build and Push
-        dockerCommand {
-            name = "Build"
-            commandType = build {
-                source = file {
-                    path = "Dockerfile"
-                }
-            }
-            commandArgs = "--pull --push -t %env.DOCKER_IMAGE%"
-        }
-
-        // Deploy to EC2 Instance
-        sshExec {
-            name = "Deploy to EC2 Instance"
-            commands = """
-                docker run -p 5000:80 -d --name myapp %env.DOCKER_IMAGE%
-            """.trimIndent()
-            targetUrl = "%env.HOST%"
+        sshUpload {
+            name = "deploy_copy"
+            id = "deploy_copy"
+            enabled = false
+            transportProtocol = SSHUpload.TransportProtocol.SCP
+            sourcePath = "build => ."
+            targetUrl = "45.33.17.134:/root/"
             authMethod = uploadedKey {
-                username = "%env.USER%"
+                username = "root"
+                key = "id_rsa"
+            }
+        }
+        sshExec {
+            name = "deploy_run"
+            id = "deploy_run"
+            enabled = false
+            commands = "cp -r build/* /var/www/html && systemctl restart nginx"
+            targetUrl = "45.33.17.134"
+            authMethod = uploadedKey {
+                username = "root"
                 key = "id_rsa"
             }
         }
