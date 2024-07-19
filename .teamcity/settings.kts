@@ -72,6 +72,7 @@ object ReactSite_Build : BuildType({
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
+        password("env.HOST", "credentialsJSON:01d99e4c-8d5b-4a5f-9839-20bb51349186")
         password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
         password("env.SONAR_TOKEN", "credentialsJSON:1b043825-95ef-4c59-b7da-1cb9aa272e56")
         password("env.DOCKERHUB_PASSWORD", "credentialsJSON:9cd69afe-e02b-43ca-9717-9e73c7302b0d")
