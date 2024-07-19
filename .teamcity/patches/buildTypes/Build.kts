@@ -10,6 +10,9 @@ accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Build")) {
     params {
+        remove {
+            password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
+        }
         expect {
             password("env.SONAR_HOST_URL", "credentialsJSON:9f2d9368-e5bc-4dcf-abf6-fb69a1e90532")
         }
@@ -24,6 +27,9 @@ changeBuildType(RelativeId("Build")) {
         }
         add {
             password("SONAR_TOKEN", "credentialsJSON:617e93e3-e92c-4c35-94bd-b123bd30952e", display = ParameterDisplay.HIDDEN, readOnly = true)
+        }
+        add {
+            password("PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d", display = ParameterDisplay.HIDDEN, readOnly = true)
         }
     }
 }
