@@ -75,6 +75,7 @@ object ReactSite_Build : BuildType({
         password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
         password("env.SONAR_TOKEN", "credentialsJSON:1b043825-95ef-4c59-b7da-1cb9aa272e56")
         password("env.SONAR_HOST_URL", "credentialsJSON:9f2d9368-e5bc-4dcf-abf6-fb69a1e90532")
+        password("env.DOCKERHUB_USERNAME", "credentialsJSON:407f140b-cb3b-4009-9d5f-cdd1275efafd")
     }
 
     vcs {
