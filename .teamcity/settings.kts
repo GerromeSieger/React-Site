@@ -97,8 +97,8 @@ object ReactSite_Build : BuildType({
             name = "deploy_copy"
             id = "deploy_copy"
             transportProtocol = SSHUpload.TransportProtocol.SCP
-            sourcePath = "build"
-            targetUrl = "45.33.17.134:/root/build"
+            sourcePath = "build => ."
+            targetUrl = "45.33.17.134:/root/"
             authMethod = uploadedKey {
                 username = "root"
                 key = "id_rsa"
