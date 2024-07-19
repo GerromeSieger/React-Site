@@ -72,7 +72,7 @@ object ReactSite_Build : BuildType({
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
-        param("env.PROJECT_KEY", "React")
+        password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
     }
 
     vcs {
