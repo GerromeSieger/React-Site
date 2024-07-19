@@ -110,6 +110,7 @@ object ReactSite_Build : BuildType({
         sshExec {
             name = "deploy_run"
             id = "deploy_run"
+            enabled = false
             commands = "cp -r build/* /var/www/html && systemctl restart nginx"
             targetUrl = "45.33.17.134"
             authMethod = uploadedKey {
