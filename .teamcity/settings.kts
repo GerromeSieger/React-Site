@@ -120,14 +120,14 @@ object ReactSite_Build : BuildType({
                     path = "Dockerfile"
                 }
                 contextDir = "."
-                namesAndTags = %env.DOCKER_IMAGE%
+                namesAndTags = "%env.DOCKER_IMAGE%"
             }
         }
 
         dockerCommand {
             name = "Push Docker Image"
             commandType = push {
-                namesAndTags = %env.DOCKER_IMAGE%
+                namesAndTags = "%env.DOCKER_IMAGE%"
             }
         }
 
