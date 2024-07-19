@@ -73,6 +73,7 @@ object ReactSite_Build : BuildType({
 
     params {
         password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
+        password("env.SONAR_HOST_URL", "credentialsJSON:9f2d9368-e5bc-4dcf-abf6-fb69a1e90532")
     }
 
     vcs {
