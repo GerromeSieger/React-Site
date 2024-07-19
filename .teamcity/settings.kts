@@ -113,15 +113,22 @@ object ReactSite_Build : BuildType({
             }
         }
 
-        // Docker Build and Push
         dockerCommand {
-            name = "Build"
+            name = "Build Docker Image"
             commandType = build {
                 source = file {
                     path = "Dockerfile"
                 }
+                contextDir = "."
+                namesAndTags = %env.DOCKER_IMAGE%
             }
-            commandArgs = "--pull --push -t %env.DOCKER_IMAGE%"
+        }
+
+        dockerCommand {
+            name = "Push Docker Image"
+            commandType = push {
+                namesAndTags = %env.DOCKER_IMAGE%
+            }
         }
 
         // Deploy to EC2 Instance
