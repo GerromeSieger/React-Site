@@ -71,6 +71,10 @@ object ReactSite_Build : BuildType({
     artifactRules = "build/**"
     publishArtifacts = PublishMode.SUCCESSFUL
 
+    params {
+        param("env.PROJECT_KEY", "React")
+    }
+
     vcs {
         root(ReactSite_HttpsGithubComGerromesiegerReactSiteRefsHeadsMain)
     }
