@@ -93,7 +93,7 @@ object ReactSite_Build : BuildType({
             dockerPull = true
         }
         sshUpload {
-            name = "deploy"
+            name = "deploy_copy"
             id = "deploy"
             transportProtocol = SSHUpload.TransportProtocol.SCP
             sourcePath = "build"
