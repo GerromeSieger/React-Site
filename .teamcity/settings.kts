@@ -1,4 +1,5 @@
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
@@ -80,6 +81,46 @@ object ReactSite_Build : BuildType({
         root(ReactSite_HttpsGithubComGerromesiegerReactSiteRefsHeadsMain)
     }
 
+    steps {
+        // SonarQube Analysis
+        sonarQube {
+            name = "Test"
+            projectName = "%env.PROJECT_KEY%"
+            projectKey = "%env.PROJECT_KEY%"
+            serverUrl = "%env.SONAR_HOST_URL%"
+            token = "%env.SONAR_TOKEN%"
+        }
+
+        // Docker Login
+        script {
+            name = "Login to DockerHub"
+            scriptContent = "docker login -u %env.DOCKERHUB_USERNAME% -p %env.DOCKERHUB_PASSWORD%"
+        }
+
+        // Docker Build and Push
+        dockerCommand {
+            name = "Build"
+            commandType = build {
+                source = file {
+                    path = "Dockerfile"
+                }
+            }
+            commandArgs = "--pull --push -t %env.DOCKER_IMAGE%"
+        }
+
+        // Deploy to EC2 Instance
+        sshExec {
+            name = "Deploy to EC2 Instance"
+            commands = """
+                docker run -p 5000:80 -d --name myapp %env.DOCKER_IMAGE%
+            """.trimIndent()
+            targetUrl = "%env.HOST%"
+            authMethod = uploadedKey {
+                username = "%env.USER%"
+                key = "id_rsa"
+            }
+        }
+    }
     triggers {
         vcs {
         }
