@@ -1,8 +1,10 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
+import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
@@ -89,6 +91,17 @@ object ReactSite_Build : BuildType({
             dockerImage = "ubuntu:22.04"
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
             dockerPull = true
+        }
+        sshUpload {
+            name = "deploy"
+            id = "deploy"
+            transportProtocol = SSHUpload.TransportProtocol.SCP
+            sourcePath = "build"
+            targetUrl = "45.33.17.134"
+            authMethod = uploadedKey {
+                username = "root"
+                key = "id_rsa"
+            }
         }
     }
 
