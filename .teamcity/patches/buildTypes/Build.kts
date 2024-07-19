@@ -16,14 +16,14 @@ changeBuildType(RelativeId("Build")) {
         update {
             password("env.SONAR_HOST_URL", "credentialsJSON:4d099940-9acf-420f-8f65-88d50d2dc95a")
         }
-        expect {
+        remove {
             password("env.SONAR_TOKEN", "credentialsJSON:1b043825-95ef-4c59-b7da-1cb9aa272e56")
-        }
-        update {
-            password("env.SONAR_TOKEN", "credentialsJSON:617e93e3-e92c-4c35-94bd-b123bd30952e")
         }
         add {
             password("SONAR_HOST_URL", "credentialsJSON:4d099940-9acf-420f-8f65-88d50d2dc95a", display = ParameterDisplay.HIDDEN, readOnly = true)
+        }
+        add {
+            password("SONAR_TOKEN", "credentialsJSON:617e93e3-e92c-4c35-94bd-b123bd30952e", display = ParameterDisplay.HIDDEN, readOnly = true)
         }
     }
 }
