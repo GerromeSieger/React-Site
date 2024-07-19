@@ -1,8 +1,6 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
-import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
-import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
@@ -84,18 +82,6 @@ object ReactSite_Build : BuildType({
     }
 
     steps {
-        sshUpload {
-            name = "deploy_copy"
-            id = "deploy_copy"
-            enabled = false
-            transportProtocol = SSHUpload.TransportProtocol.SCP
-            sourcePath = "build => ."
-            targetUrl = "45.33.17.134:/root/"
-            authMethod = uploadedKey {
-                username = "root"
-                key = "id_rsa"
-            }
-        }
         sshExec {
             name = "deploy_run"
             id = "deploy_run"
