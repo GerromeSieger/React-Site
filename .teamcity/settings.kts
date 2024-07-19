@@ -1,8 +1,6 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
-import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
-import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.projectFeatures.buildReportTab
@@ -86,15 +84,6 @@ object ReactSite_Build : BuildType({
     }
 
     steps {
-        script {
-            name = "test"
-            id = "simpleRunner"
-            enabled = false
-            scriptContent = "./test.sh"
-            dockerImage = "ubuntu:22.04"
-            dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
-            dockerPull = true
-        }
         sshUpload {
             name = "deploy_copy"
             id = "deploy_copy"
