@@ -95,10 +95,10 @@ object ReactSite_Build : BuildType({
         }
         sshUpload {
             name = "deploy_copy"
-            id = "deploy"
+            id = "deploy_copy"
             transportProtocol = SSHUpload.TransportProtocol.SCP
             sourcePath = "build"
-            targetUrl = "45.33.17.134"
+            targetUrl = "45.33.17.134:/root/build"
             authMethod = uploadedKey {
                 username = "root"
                 key = "id_rsa"
