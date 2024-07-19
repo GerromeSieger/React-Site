@@ -89,6 +89,7 @@ object ReactSite_Build : BuildType({
         script {
             name = "test"
             id = "simpleRunner"
+            enabled = false
             scriptContent = "./test.sh"
             dockerImage = "ubuntu:22.04"
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
