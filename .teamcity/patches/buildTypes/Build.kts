@@ -20,7 +20,7 @@ changeBuildType(RelativeId("Build")) {
             password("env.SONAR_TOKEN", "credentialsJSON:1b043825-95ef-4c59-b7da-1cb9aa272e56")
         }
         update {
-            param("env.SONAR_TOKEN", "sqa_6886e865b8e42c330891b056a3351385b8f85133")
+            password("env.SONAR_TOKEN", "credentialsJSON:617e93e3-e92c-4c35-94bd-b123bd30952e")
         }
     }
 }
