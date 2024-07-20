@@ -29,6 +29,10 @@ version = "2024.03"
 project {
 
     buildType(Build)
+
+    params {
+        password("env.HOST", "credentialsJSON:e960e252-27b0-42d3-9b47-4fe2bef751e9")
+    }
 }
 
 object Build : BuildType({
