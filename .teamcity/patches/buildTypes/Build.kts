@@ -2,6 +2,7 @@ package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.BuildStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.DockerCommandStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.ui.*
 
@@ -48,6 +49,20 @@ changeBuildType(RelativeId("Build")) {
                 commandType = other {
                     subCommand = "login"
                     commandArgs = "-u %env.DOCKERHUB_USERNAME% -p %env.DOCKERHUB_PASSWORD%"
+                }
+            }
+        }
+        insert(2) {
+            dockerCommand {
+                name = "build"
+                id = "build"
+                commandType = build {
+                    source = file {
+                        path = "."
+                    }
+                    platform = DockerCommandStep.ImagePlatform.Linux
+                    namesAndTags = "%env.DOCKER_IMAGE%"
+                    commandArgs = "--pull"
                 }
             }
         }
