@@ -2,6 +2,7 @@ package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.BuildStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.ui.*
 
 /*
@@ -27,6 +28,15 @@ changeBuildType(RelativeId("Build")) {
             param("teamcity.tool.sonarquberunner", "%teamcity.tool.sonar-qube-scanner.4.2.0.1873-scanner%")
             param("sonarProjectVersion", "")
             param("sonarProjectKey", "React")
+        }
+        insert(1) {
+            dockerCommand {
+                name = "docker_login"
+                id = "docker_login"
+                commandType = other {
+                    subCommand = "login"
+                }
+            }
         }
     }
 }
