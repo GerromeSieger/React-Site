@@ -68,7 +68,40 @@ object Build : BuildType({
             id = "test_scan"
             type = "sonar-plugin"
             param("sonarServer", "9efd98dd-ab58-4702-a30a-f19a35036558")
-        }        
+        }
+
+        dockerCommand {
+                name = "docker_login"
+                id = "docker_login"
+                commandType = other {
+                    subCommand = "login"
+                    commandArgs = """
+                        --rm 
+                        -e DOCKER_USERNAME="%env.DOCKERHUB_USERNAME%" 
+                        -e DOCKER_PASSWORD="%env.DOCKERHUB_PASSWORD%" 
+                        docker:dind 
+                        sh -c "echo ${'$'}DOCKER_PASSWORD | docker login -u ${'$'}DOCKER_USERNAME --password-stdin"
+                    """.trimIndent()                    
+                }
+            }
+
+        dockerCommand {
+                name = "Build Docker Image"
+                commandType = build {
+                    source = file {
+                        path = "Dockerfile"
+                    }
+                    contextDir = "."
+                    namesAndTags = "%env.DOCKER_IMAGE%"
+                }
+            }
+
+        dockerCommand {
+                name = "Push Docker Image"
+                commandType = push {
+                    namesAndTags = "%env.DOCKER_IMAGE%"
+                }
+            }
     }
 
     triggers {
