@@ -99,7 +99,7 @@ changeBuildType(RelativeId("Build")) {
                 commandArgs = """
                     --rm 
                     -e SONAR_HOST_URL=%SONAR_HOST_URL%
-                    -e SONAR_LOGIN="sqa_6886e865b8e42c330891b056a3351385b8f85133"
+                    -e SONAR_TOKEN=%SONAR_TOKEN%
                     -v "%teamcity.build.checkoutDir%:/usr/src" 
                     sonarsource/sonar-scanner-cli:latest 
                     -Dsonar.projectKey=%PROJECT_KEY%
