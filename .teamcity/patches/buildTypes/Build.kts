@@ -1,7 +1,6 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
-import jetbrains.buildServer.configs.kotlin.buildSteps.NodeJSBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
@@ -57,11 +56,8 @@ changeBuildType(RelativeId("Build")) {
         }
     }
     steps {
-        update<NodeJSBuildStep>(0) {
-            clearConditions()
-            dockerPull = true
-        }
-        update<ScriptBuildStep>(1) {
+        items.removeAt(0)
+        update<ScriptBuildStep>(0) {
             clearConditions()
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Any
         }
