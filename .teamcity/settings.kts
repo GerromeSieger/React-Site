@@ -37,6 +37,7 @@ object Build : BuildType({
     name = "Build"
 
     params {
+        password("env.USER", "credentialsJSON:998ca956-78f1-4610-895d-0493026d2628")
         password("env.HOST", "credentialsJSON:0271e1c7-8494-4e4d-a67c-17df4cf92c69")
     }
 
