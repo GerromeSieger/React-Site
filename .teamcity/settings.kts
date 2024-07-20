@@ -36,6 +36,10 @@ project {
 object Build : BuildType({
     name = "Build"
 
+    params {
+        password("env.HOST", "credentialsJSON:0271e1c7-8494-4e4d-a67c-17df4cf92c69")
+    }
+
     vcs {
         root(DslContext.settingsRoot)
     }
