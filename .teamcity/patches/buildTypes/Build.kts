@@ -58,7 +58,7 @@ changeBuildType(RelativeId("Build")) {
                 id = "build"
                 commandType = build {
                     source = file {
-                        path = "."
+                        path = "Dockerfile"
                     }
                     platform = DockerCommandStep.ImagePlatform.Linux
                     namesAndTags = "%env.DOCKER_IMAGE%"
