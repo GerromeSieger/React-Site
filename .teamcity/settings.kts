@@ -74,7 +74,7 @@ object Build : BuildType({
             id = "deploy_copy"
             transportProtocol = SSHUpload.TransportProtocol.SCP
             sourcePath = "build => ."
-            targetUrl = "%env.HOST%:/root/"
+            targetUrl = "%env.HOST%:/root/build"
             authMethod = uploadedKey {
                 username = "%env.USER%"
                 key = "id_rsa"
