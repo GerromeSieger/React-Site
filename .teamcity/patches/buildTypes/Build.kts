@@ -11,6 +11,12 @@ To apply the patch, change the buildType with id = 'Build'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Build")) {
+    params {
+        add {
+            password("env.DOCKERHUB_USERNAME", "credentialsJSON:cdfa9bbb-47fa-4738-bae7-13d4a650c3f4")
+        }
+    }
+
     expectSteps {
         step {
             name = "test-scan"
