@@ -29,6 +29,10 @@ version = "2024.03"
 project {
 
     buildType(Pipeline)
+
+    params {
+        password("env.HOST", "credentialsJSON:13dae560-8951-4863-af52-afc8a9fe5a2a")
+    }
 }
 
 object Pipeline : BuildType({
