@@ -3,7 +3,9 @@ package patches.buildTypes
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.BuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.DockerCommandStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.ui.*
 
@@ -92,6 +94,25 @@ changeBuildType(RelativeId("Build")) {
                     username = "%env.USER%"
                     key = "id_rsa"
                 }
+            }
+        }
+        insert(5) {
+            script {
+                name = "deploy_argo"
+                id = "deploy_argo"
+                scriptContent = """
+                    git clone %env.K8S_MANIFEST_REPO% k8s-manifests
+                    cd k8s-manifests
+                    git config user.name "TeamCity"
+                    git config user.email "teamcity@example.com"
+                    git pull origin main
+                    sed -i 's|image: .*|image: %env.DOCKER_IMAGE%:%env.DOCKER_TAG%|' app.yml
+                    git add .
+                    git commit -m "Update image tag to %env.DOCKER_TAG%"
+                    git push origin main
+                """.trimIndent()
+                dockerImage = "bitnami/git:latest"
+                dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
             }
         }
     }
