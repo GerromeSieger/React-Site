@@ -63,51 +63,12 @@ object Build : BuildType({
     }
 
     steps {
-        nodeJS {
-            name = "build"
-            id = "nodejs_runner"
-            shellScript = """
-                npm install
-                npm run build
-            """.trimIndent()
-            dockerImage = "node:18-alpine"
-            dockerImagePlatform = NodeJSBuildStep.ImagePlatform.Any
-        }
-        script {
-            name = "test"
-            id = "simpleRunner"
-            scriptContent = "sh test.sh"
-            dockerImage = "ubuntu:22.04"
-            dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
-            dockerPull = true
-        }
-        sshUpload {
-            name = "deploy_copy"
-            id = "deploy_copy"
-            transportProtocol = SSHUpload.TransportProtocol.SCP
-            sourcePath = "build => ."
-            targetUrl = "%env.HOST%:/root/build"
-            authMethod = uploadedKey {
-                username = "%env.USER%"
-                key = "id_rsa"
-            }
-        }
-        sshExec {
-            name = "deploy_run"
-            id = "deploy_run"
-            commands = "cp -r build/* /var/www/html && systemctl restart nginx"
-            targetUrl = "%env.HOST%"
-            authMethod = uploadedKey {
-                username = "%env.USER%"
-                key = "id_rsa"
-            }
-        }
         step {
             name = "test-scan"
             id = "test_scan"
             type = "sonar-plugin"
             param("sonarServer", "9efd98dd-ab58-4702-a30a-f19a35036558")
-        }
+        }        
     }
 
     triggers {
