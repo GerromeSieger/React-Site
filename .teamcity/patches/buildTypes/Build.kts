@@ -80,7 +80,7 @@ changeBuildType(RelativeId("Build")) {
                 name = "push"
                 id = "push"
                 commandType = push {
-                    namesAndTags = "%env.DOCKER_IMAGE%"
+                    namesAndTags = "%env.DOCKER_IMAGE%:%env.DOCKER_TAG%"
                 }
             }
         }
