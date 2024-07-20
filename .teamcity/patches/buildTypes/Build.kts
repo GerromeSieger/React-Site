@@ -21,9 +21,11 @@ changeBuildType(RelativeId("Build")) {
     steps {
         update<BuildStep>(0) {
             clearConditions()
-            param("sonarProjectSources", ".")
+            param("teamcity.build.workingDir", "./")
             param("sonarProjectName", "React")
+            param("teamcity.tool.sonarquberunner", "6.0.0.4432")
             param("sonarProjectKey", "React")
+            param("sonarProjectSources", "")
             param("sonarProjectVersion", "")
         }
     }
