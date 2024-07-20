@@ -6,7 +6,6 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.DockerCommandStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
-import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.ui.*
 
 /*
@@ -85,18 +84,6 @@ changeBuildType(RelativeId("Build")) {
             }
         }
         insert(4) {
-            sshExec {
-                name = "deploy"
-                id = "deploy"
-                commands = "docker run -p 5000:80 -d --name reactapp %env.DOCKER_IMAGE%"
-                targetUrl = "%env.HOST%"
-                authMethod = uploadedKey {
-                    username = "%env.USER%"
-                    key = "id_rsa"
-                }
-            }
-        }
-        insert(5) {
             script {
                 name = "deploy_argo"
                 id = "deploy_argo"
