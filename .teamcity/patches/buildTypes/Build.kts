@@ -70,7 +70,7 @@ changeBuildType(RelativeId("Build")) {
                         path = "Dockerfile"
                     }
                     platform = DockerCommandStep.ImagePlatform.Linux
-                    namesAndTags = "%env.DOCKER_IMAGE%"
+                    namesAndTags = "%env.DOCKER_IMAGE%:%env.DOCKER_TAG%"
                     commandArgs = "--pull"
                 }
             }
