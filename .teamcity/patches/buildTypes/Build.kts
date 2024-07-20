@@ -16,6 +16,9 @@ changeBuildType(RelativeId("Build")) {
             password("env.DOCKERHUB_PASSWORD", "credentialsJSON:430d66d3-15bd-4188-925d-7370ca43bc32")
         }
         add {
+            password("env.DOCKER_IMAGE", "credentialsJSON:8fa3c955-aa1a-4966-a273-3f82d8495a8c")
+        }
+        add {
             password("env.DOCKERHUB_USERNAME", "credentialsJSON:cdfa9bbb-47fa-4738-bae7-13d4a650c3f4")
         }
     }
