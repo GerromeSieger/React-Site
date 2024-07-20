@@ -23,7 +23,7 @@ changeBuildType(RelativeId("Build")) {
             clearConditions()
             param("teamcity.build.workingDir", "./")
             param("sonarProjectName", "React")
-            param("teamcity.tool.sonarquberunner", "6.0.0.4432")
+            param("teamcity.tool.sonarquberunner", "%teamcity.tool.sonar-qube-scanner.4.2.0.1873-scanner%")
             param("sonarProjectKey", "React")
             param("sonarProjectSources", "")
             param("sonarProjectVersion", "")
