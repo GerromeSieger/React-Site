@@ -44,8 +44,8 @@ project {
             param("useToken", "true")
             param("name", "SonarServer")
             param("id", "9efd98dd-ab58-4702-a30a-f19a35036558")
-            param("url", "http://198.58.109.39:9000/")
-            param("token", "scrambled:c3FhX2IyMGE1MGNmMGY1ZjlmMzc1M2JhNGZmZjNkMWQwNWMxOTA4NjNmZDc=")
+            param("url", "http://172.233.131.14:9000/")
+            param("token", "scrambled:c3FhXzQzMzY1NzBiMzZmZjk5NWM0MDgzMmNmYmU4NTk1NzFjMDUxZGZjODQ=")
         }
     }
 }
