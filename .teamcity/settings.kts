@@ -36,6 +36,18 @@ version = "2024.03"
 project {
 
     buildType(Build)
+
+    features {
+        feature {
+            id = "PROJECT_EXT_4"
+            type = "sonar-qube"
+            param("useToken", "true")
+            param("name", "SonarServer")
+            param("id", "9efd98dd-ab58-4702-a30a-f19a35036558")
+            param("url", "http://198.58.109.39:9000/")
+            param("token", "scrambled:c3FhX2IyMGE1MGNmMGY1ZjlmMzc1M2JhNGZmZjNkMWQwNWMxOTA4NjNmZDc=")
+        }
+    }
 }
 
 object Build : BuildType({
