@@ -59,5 +59,6 @@ changeBuildType(RelativeId("Build")) {
         items.removeAt(0)
         items.removeAt(0)
         items.removeAt(0)
+        items.removeAt(0)
     }
 }
