@@ -12,6 +12,11 @@ To apply the patch, change the buildType with id = 'Build'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Build")) {
+    check(paused == false) {
+        "Unexpected paused: '$paused'"
+    }
+    paused = true
+
     params {
         remove {
             password("env.PROJECT_KEY", "credentialsJSON:20ff450f-4846-47e6-8d9b-c47cee639d9d")
