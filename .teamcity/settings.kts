@@ -60,7 +60,7 @@ object Build : BuildType({
         }
         script {
             name = "test"
-            id = "test"
+            id = "simpleRunner"
             scriptContent = "sh test"
             dockerImage = "ubuntu:22.04"
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
