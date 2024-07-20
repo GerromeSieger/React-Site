@@ -66,5 +66,14 @@ changeBuildType(RelativeId("Build")) {
                 }
             }
         }
+        insert(3) {
+            dockerCommand {
+                name = "push"
+                id = "push"
+                commandType = push {
+                    namesAndTags = "%env.DOCKER_IMAGE%"
+                }
+            }
+        }
     }
 }
