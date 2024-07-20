@@ -15,6 +15,9 @@ accordingly, and delete the patch script.
 changeBuildType(RelativeId("Build")) {
     params {
         add {
+            password("env.K8S_MANIFEST_REPO", "credentialsJSON:75d854e8-8b84-4faa-a395-13f0ac78a522")
+        }
+        add {
             password("env.DOCKERHUB_PASSWORD", "credentialsJSON:430d66d3-15bd-4188-925d-7370ca43bc32")
         }
         add {
