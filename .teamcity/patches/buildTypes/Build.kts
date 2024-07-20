@@ -1,6 +1,7 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.NodeJSBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
@@ -56,9 +57,16 @@ changeBuildType(RelativeId("Build")) {
         }
     }
     steps {
-        items.removeAt(0)
-        items.removeAt(0)
-        items.removeAt(0)
-        items.removeAt(0)
+        update<NodeJSBuildStep>(0) {
+            executionMode = BuildStep.ExecutionMode.DEFAULT
+            clearConditions()
+            shellScript = """
+                npm ci
+                npm run build
+            """.trimIndent()
+        }
+        items.removeAt(1)
+        items.removeAt(1)
+        items.removeAt(1)
     }
 }
