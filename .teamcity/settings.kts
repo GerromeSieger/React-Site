@@ -31,6 +31,7 @@ project {
     buildType(Pipeline)
 
     params {
+        password("env.USER", "credentialsJSON:d3e0e2d7-e502-42c9-8c89-82efcc5d31e5")
         password("env.HOST", "credentialsJSON:13dae560-8951-4863-af52-afc8a9fe5a2a")
     }
 }
