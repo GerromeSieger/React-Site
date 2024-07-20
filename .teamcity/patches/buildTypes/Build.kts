@@ -57,9 +57,6 @@ changeBuildType(RelativeId("Build")) {
     }
     steps {
         items.removeAt(0)
-        update<ScriptBuildStep>(0) {
-            clearConditions()
-            dockerImagePlatform = ScriptBuildStep.ImagePlatform.Any
-        }
+        items.removeAt(0)
     }
 }
