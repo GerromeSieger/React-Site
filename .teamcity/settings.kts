@@ -102,6 +102,12 @@ object Build : BuildType({
                 key = "id_rsa"
             }
         }
+        step {
+            name = "test-scan"
+            id = "test_scan"
+            type = "sonar-plugin"
+            param("sonarServer", "9efd98dd-ab58-4702-a30a-f19a35036558")
+        }
     }
 
     triggers {
