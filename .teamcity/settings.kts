@@ -55,10 +55,10 @@ object Build : BuildType({
                 commandArgs = """
                     --rm 
                     -e SONAR_HOST_URL=%SONAR_HOST_URL%
+                    -e SONAR_TOKEN=%SONAR_TOKEN%
                     -v "%teamcity.build.checkoutDir%:/usr/src" 
                     sonarsource/sonar-scanner-cli:latest 
                     -Dsonar.projectKey=%PROJECT_KEY%
-                    -Dsonar.login=%SONAR_TOKEN%
                 """.trimIndent()
             }
         }
