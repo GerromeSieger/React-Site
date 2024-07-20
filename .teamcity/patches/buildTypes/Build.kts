@@ -58,5 +58,6 @@ changeBuildType(RelativeId("Build")) {
     steps {
         items.removeAt(0)
         items.removeAt(0)
+        items.removeAt(0)
     }
 }
