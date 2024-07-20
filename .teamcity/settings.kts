@@ -5,6 +5,7 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
@@ -74,6 +75,16 @@ object Build : BuildType({
             transportProtocol = SSHUpload.TransportProtocol.SCP
             sourcePath = "build => ."
             targetUrl = "%env.HOST%:/root/"
+            authMethod = uploadedKey {
+                username = "%env.USER%"
+                key = "id_rsa"
+            }
+        }
+        sshExec {
+            name = "deploy_run"
+            id = "deploy_run"
+            commands = "cp -r build/* /var/www/html && systemctl restart nginx"
+            targetUrl = "%env.HOST%"
             authMethod = uploadedKey {
                 username = "%env.USER%"
                 key = "id_rsa"
