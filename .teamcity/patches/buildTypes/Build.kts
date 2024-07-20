@@ -46,14 +46,8 @@ changeBuildType(RelativeId("Build")) {
                 name = "docker_login"
                 id = "docker_login"
                 commandType = other {
-                    subCommand = "login"
-                    commandArgs = """
-                        --rm 
-                                                -e DOCKER_USERNAME="%env.DOCKERHUB_USERNAME%" 
-                                                -e DOCKER_PASSWORD="%env.DOCKERHUB_PASSWORD%" 
-                                                docker:dind 
-                                                sh -c "echo ${'$'}{'${'$'}'}DOCKER_PASSWORD | docker login -u ${'$'}{'${'$'}'}DOCKER_USERNAME --password-stdin"
-                    """.trimIndent()
+                    subCommand = "run"
+                    commandArgs = """-e DOCKER_USERNAME="%env.DOCKERHUB_USERNAME%" -e DOCKER_PASSWORD="%env.DOCKERHUB_PASSWORD%" docker:dind sh -c "echo ${'$'}{'${'$'}'}DOCKER_PASSWORD | docker login -u ${'$'}{'${'$'}'}DOCKER_USERNAME --password-stdin""""
                 }
             }
         }
