@@ -1,9 +1,11 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import jetbrains.buildServer.configs.kotlin.buildSteps.NodeJSBuildStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
 /*
@@ -65,6 +67,17 @@ object Build : BuildType({
             dockerImage = "ubuntu:22.04"
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
             dockerPull = true
+        }
+        sshUpload {
+            name = "deploy_copy"
+            id = "deploy_copy"
+            transportProtocol = SSHUpload.TransportProtocol.SCP
+            sourcePath = "build => ."
+            targetUrl = "%env.HOST%:/root/"
+            authMethod = uploadedKey {
+                username = "%env.USER%"
+                key = "id_rsa"
+            }
         }
     }
 
