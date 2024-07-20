@@ -1,5 +1,10 @@
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.SSHUpload
+import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.nodeJS
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
+import jetbrains.buildServer.configs.kotlin.buildSteps.sshUpload
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
