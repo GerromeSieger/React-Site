@@ -2,7 +2,7 @@ version: 2
 plan:
   project-key: REACT
   key: REACT
-  name: React-Site-Workflow
+  name: React-Site
 
 stages:
   - Build:
