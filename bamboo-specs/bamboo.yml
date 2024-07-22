@@ -1,8 +1,8 @@
 version: 2
 plan:
   project-key: REACT
-  key: SITEWF
-  name: pipeline
+  key: REACT
+  name: React-Site-Workflow
 
 stages:
   - Build:
