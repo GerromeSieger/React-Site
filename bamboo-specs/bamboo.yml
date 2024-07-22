@@ -1,0 +1,63 @@
+version: 2
+plan:
+  project-key: REACT
+  key: SITEWF
+  name: React-Site-Workflow
+
+stages:
+  - Build:
+      jobs:
+        - Build
+  - Test:
+      jobs:
+        - Test
+  - Deploy:
+      jobs:
+        - Deploy
+
+Build:
+  docker:
+    image: node:18
+  tasks:
+    - checkout:
+        force-clean-build: true
+    - script:
+        - npm install
+        - npm run build
+  artifacts:
+    - name: react-app
+      pattern: build/**
+
+Test:
+  docker:
+    image: ubuntu:22.04
+  tasks:
+    - checkout:
+        force-clean-build: true
+    - artifact-download:
+        name: react-app
+        destination: build
+    - script:
+        - sh test.sh
+
+Deploy:
+  docker:
+    image: ubuntu:22.04
+  tasks:
+    - checkout:
+        force-clean-build: true
+    - artifact-download:
+        name: react-app
+        destination: build
+    - script:
+        - |
+          apt-get update && apt-get install -y openssh-client
+          mkdir -p ~/.ssh
+          echo "${bamboo.PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -r -o StrictHostKeyChecking=no build/* ${bamboo.USER}@${bamboo.HOST}:/root/build
+          ssh -o StrictHostKeyChecking=no ${bamboo.USER}@${bamboo.HOST} '
+            sudo apt install nginx -y
+            sudo cp -r /root/build/* /var/www/html
+            sudo systemctl restart nginx
+          '
