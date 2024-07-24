@@ -1,0 +1,50 @@
+language: node_js
+node_js:
+  - 18
+
+branches:
+  only:
+    - main
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - npm install
+        - npm run build
+      after_success:
+        - tar -czf build.tar.gz build
+
+    - stage: test
+      before_script:
+        - tar -xzf build.tar.gz
+      script:
+        - sh test.sh
+
+    - stage: deploy
+      before_script:
+        - tar -xzf build.tar.gz
+      script:
+        - echo "Deploying to server..."
+        - openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in deploy_key.enc -out deploy_key -d
+        - chmod 600 deploy_key
+        - scp -i deploy_key -r build/* $USER@$HOST:/home/ubuntu
+        - ssh -i deploy_key $USER@$HOST 'sudo cp -r /home/ubuntu/build/* /var/www/html && sudo systemctl restart nginx'
+
+cache:
+  directories:
+    - node_modules
+
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in deploy_key.enc -out deploy_key -d
+  - chmod 600 deploy_key
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: scp -i deploy_key -r build/* $USER@$HOST:/home/ubuntu && ssh -i deploy_key $USER@$HOST 'sudo cp -r /home/ubuntu/build/* /var/www/html && sudo systemctl restart nginx'
+  on:
+    branch: main
+
+addons:
+  ssh_known_hosts: $HOST
