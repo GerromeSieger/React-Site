@@ -10,7 +10,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-  DOCKER_TAG: ${GITHUB_SHA}
+  DOCKER_TAG: echo "tag=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
 
 jobs:
   test:
