@@ -60,9 +60,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           echo ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-
-      - name: Update Kubernetes Manifests
-        run: |
           cd k8s-manifests
           git pull origin main
           awk -v image="${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
