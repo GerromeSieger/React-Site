@@ -1,9 +1,13 @@
-name: ArgoCD workflow
+name: trivy
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -12,30 +16,41 @@ env:
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  testScan:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    name: Build
+    runs-on: "ubuntu-20.04"
     steps:
-    - name: Checkout React App
-      uses: actions/checkout@v2
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
-    - name: Install Dependencies
-      run: echo "npm ci"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        with:
+          image-ref: '${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}'
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   build:
     runs-on: ubuntu-latest
-    needs: test
-    outputs:
-      docker_tag: ${{ steps.docker_tag.outputs.tag }}
+    needs: [testScan]  
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      # - name: Generate Docker Tag
-      #   id: docker_tag
-      #   run: echo "tag=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -48,29 +63,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Clone K8s Manifests Repo
-        run: |
-          git clone https://x-access-token:${{ secrets.MANIFEST_REPO_PAT }}@${{ secrets.K8S_MANIFEST_REPO }} k8s-manifests
-          cd k8s-manifests
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          echo ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-          git pull origin main
-          awk -v image="${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
-            /image:/ {$0 = "        image: " image}
-            {print}
-          ' k8s/app.yml > temp.yml && mv temp.yml k8s/app.yml
-          if [[ -n $(git status -s) ]]; then
-            echo "Changes detected. Committing and pushing..."
-            git add .
-            git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
-            git push
-          else
-            echo "No changes detected in Kubernetes manifests."
-          fi
+          tags: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
