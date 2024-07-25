@@ -9,6 +9,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+  DOCKER_TAG: ${{ github.sha }}
 
 jobs:
   test:
@@ -47,7 +48,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ steps.docker_tag.outputs.tag }}
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
 
   deploy:
     runs-on: ubuntu-latest
