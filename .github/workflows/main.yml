@@ -76,12 +76,21 @@ jobs:
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
 
-      - name: Set up Kustomize
-        run: |-
-          cd k8s
-          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-          chmod u+x ./kustomize
-          ./kustomize edit set image ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-          ./kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
-          kubectl get services -o wide
+      - name: Deploy the Kubernetes resources
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          echo ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          git pull origin main
+          awk -v image="${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}" '
+            /image:/ {$0 = "        image: " image}
+            {print}
+          ' k8s/app.yml > temp.yml && mv temp.yml k8s/app.yml
+          if [[ -n $(git status -s) ]]; then
+            echo "Changes detected. Committing and pushing..."
+            git add .
+            git commit -m "Update image tag to ${{ env.DOCKER_TAG }}"
+            git push
+          else
+            echo "No changes detected in Kubernetes manifests."
+          fi
