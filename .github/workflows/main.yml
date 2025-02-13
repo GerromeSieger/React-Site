@@ -79,7 +79,6 @@ jobs:
 
       - name: Verify kubectl configuration
         run: |
-          git clone ${{ secrets.KUBE_MANIFEST_REPO }}
           kubectl get nodes
 
       - name: Set up Kustomize
