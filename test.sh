@@ -1,16 +1,16 @@
 #!/bin/bash
 
-apt update
+sudo apt update
 
 # Install nginx without interactive prompts
 DEBIAN_FRONTEND=noninteractive apt install -y nginx curl
 
 # Remove existing content and copy new content
-rm -rf /var/www/html/*
-cp -r ./build/* /var/www/html/
+sudo rm -rf /var/www/html/*
+sudo cp -r ./build/* /var/www/html/
 
 # Start nginx
-service nginx start
+sudo service nginx start
 
 sleep 5
 
@@ -25,4 +25,4 @@ else
 fi
 
 # Stop nginx
-service nginx stop
+sudo service nginx stop
