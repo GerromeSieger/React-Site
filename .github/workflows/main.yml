@@ -74,6 +74,8 @@ jobs:
         run: |
           gcloud auth activate-refresh-token ${{ secrets.GCP_CLIENT_ID }} ${{ secrets.GCP_REFRESH_TOKEN }}
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud components update
+          gcloud components install gke-gcloud-auth-plugin
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
 
       - name: Install kubectl
