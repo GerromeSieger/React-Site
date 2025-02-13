@@ -71,15 +71,10 @@ jobs:
           sudo apt-get update && sudo apt-get install google-cloud-sdk
 
       - name: Configure gcloud
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
-          echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcloud.json
-          gcloud auth activate-service-account --key-file=/tmp/gcloud.json
-          gcloud auth application-default login
+          echo "${{ secrets.GCP_TOKEN }}" | gcloud auth login --cred-file=-
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
-          rm /tmp/gcloud.json  # Clean up credentials file
 
       - name: Set up Kustomize
         run: |-
