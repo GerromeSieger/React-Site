@@ -1,13 +1,8 @@
-name: trivy
+name: Build and Deploy to GKE
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -16,40 +11,27 @@ env:
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
-  testScan:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
-    runs-on: "ubuntu-20.04"
+  test:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Build an image from Dockerfile
-        run: |
-          docker build -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with: 
+          name: react-app
+          path: build
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
-        with:
-          image-ref: '${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-
+      - name: Run Shell script for testing
+        run: sh test.sh   
+        
   build:
     runs-on: ubuntu-latest
-    needs: [testScan]  
+    needs: test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -57,9 +39,50 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
           
-      - name: Build and push backend
+      - name: Build and Push
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: build
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout React App
+        uses: actions/checkout@v2
+        
+      - name: Create and populate kubeconfig
+        env:
+          KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
+        run: |
+          mkdir -p $HOME/.kube
+          echo "$KUBECONFIG_CONTENT" >> $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Verify kubectl configuration
+        run: |
+          git clone ${{ secrets.KUBE_MANIFEST_REPO }}
+          kubectl get nodes
+
+      - name: Set up Kustomize
+        run: |-
+          cd k8s
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+          ./kustomize edit set image ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          ./kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl get services -o wide
