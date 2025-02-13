@@ -17,6 +17,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: 18.x
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build App
+        run: npm run build
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: react-app
+          path: build 
+          
       - name: Download artifact
         uses: actions/download-artifact@v3
         with: 
