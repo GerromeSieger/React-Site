@@ -11,7 +11,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
- test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
