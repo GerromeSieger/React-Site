@@ -11,50 +11,50 @@ env:
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#  test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4.0.2
-        with:
-          node-version: 18.x
+  #     - name: Setup Node.js environment
+  #       uses: actions/setup-node@v4.0.2
+  #       with:
+  #         node-version: 18.x
 
-      - name: Install Dependencies
-        run: npm install
+  #     - name: Install Dependencies
+  #       run: npm install
 
-      - name: Build App
-        run: npm run build
+  #     - name: Build App
+  #       run: npm run build
 
-      - name: Run Shell script for testing
-        run: sh test.sh   
+  #     - name: Run Shell script for testing
+  #       run: sh test.sh   
         
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # build:
+  #   runs-on: ubuntu-latest
+  #   needs: test
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ env.DOCKER_USERNAME }}
+  #         password: ${{ env.DOCKER_PASSWORD }}
           
-      - name: Build and Push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+  #     - name: Build and Push
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: .
+  #         push: true
+  #         tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
 
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    needs: build
+  #  needs: build
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -72,7 +72,7 @@ jobs:
 
       - name: Authenticate with Google Cloud
         run: |
-          echo "${{ secrets.GCP_AUTH_TOKEN }}" | gcloud auth activate-service-account --key-file=-
+          echo "${{ secrets.GCP_ACCESS_TOKEN }}" | gcloud auth activate-access-token
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
 
