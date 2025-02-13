@@ -72,7 +72,7 @@ jobs:
 
       - name: Configure gcloud
         run: |
-          echo "${{ secrets.GCP_TOKEN }}" | gcloud auth login --cred-file=-
+          gcloud auth activate-refresh-token ${{ secrets.GCP_CLIENT_ID }} ${{ secrets.GCP_REFRESH_TOKEN }}
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
 
