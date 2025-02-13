@@ -28,17 +28,6 @@ jobs:
       - name: Build App
         run: npm run build
 
-      - uses: actions/upload-artifact@v1
-        with:
-          name: react-app
-          path: build 
-          
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with: 
-          name: react-app
-          path: build
-
       - name: Run Shell script for testing
         run: sh test.sh   
         
